@@ -36,34 +36,37 @@ class DeviceScanPage extends ConsumerWidget {
     } else if (bluetoothScanResult.value!.isEmpty) {
       return const Center(child: Text("Not Found Devices..."));
     } else {
-      return ListView.builder(itemBuilder: (context, index) {
-        final device = bluetoothScanResult.value![index].device;
-        return Card(
-          child: ListTile(
-            title: Text(device.name),
-            onTap: () {
-              Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => DeviceDetailPage(device: device)));
-            },
-            trailing: StreamBuilder(
-              stream: device.state,
-              builder: (context, snapshot) {
-                if (snapshot.data == BluetoothDeviceState.connected) {
-                  return const Icon(
-                    Icons.circle,
-                    color: Colors.redAccent,
-                  );
-                } else {
-                  return const Icon(
-                    Icons.circle,
-                    color: Colors.grey,
-                  );
-                }
-              },
-            ),
-          ),
-        );
-      });
+      return ListView.builder(
+          itemCount: bluetoothScanResult.value!.length,
+          itemBuilder: (context, index) {
+            final device = bluetoothScanResult.value![index].device;
+            return Card(
+              child: ListTile(
+                title: Text(device.name),
+                subtitle: Text(device.id.toString()),
+                onTap: () {
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => DeviceDetailPage(device: device)));
+                },
+                trailing: StreamBuilder(
+                  stream: device.state,
+                  builder: (context, snapshot) {
+                    if (snapshot.data == BluetoothDeviceState.connected) {
+                      return const Icon(
+                        Icons.circle,
+                        color: Colors.redAccent,
+                      );
+                    } else {
+                      return const Icon(
+                        Icons.circle,
+                        color: Colors.grey,
+                      );
+                    }
+                  },
+                ),
+              ),
+            );
+          });
     }
   }
 
