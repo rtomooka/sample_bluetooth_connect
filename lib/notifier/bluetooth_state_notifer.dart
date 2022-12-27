@@ -9,6 +9,12 @@ final bluetoothScanningProvider = StreamProvider((ref) {
   return FlutterBluePlus.instance.isScanning;
 });
 
+final bluetoothScanResultProvider = StreamProvider((ref) {
+  Stream<List<ScanResult>> stream;
+
+  return FlutterBluePlus.instance.scanResults;
+});
+
 final bluetoothConnectedDeviceProvider = FutureProvider((ref) {
   return FlutterBluePlus.instance.connectedDevices;
 });
