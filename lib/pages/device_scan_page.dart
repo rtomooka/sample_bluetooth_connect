@@ -44,24 +44,29 @@ class DeviceScanPage extends ConsumerWidget {
               child: ListTile(
                 title: Text(device.name),
                 subtitle: Text(device.id.toString()),
-                onTap: () {
-                  Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => DeviceDetailPage(device: device)));
-                },
-                trailing: StreamBuilder(
-                  stream: device.state,
-                  builder: (context, snapshot) {
-                    if (snapshot.data == BluetoothDeviceState.connected) {
-                      return const Icon(
-                        Icons.circle,
-                        color: Colors.redAccent,
-                      );
-                    } else {
-                      return const Icon(
-                        Icons.circle,
-                        color: Colors.grey,
-                      );
-                    }
+                trailing: ElevatedButton(
+                  child: StreamBuilder(
+                    stream: device.state,
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return const CircularProgressIndicator();
+                      } else if (snapshot.data ==
+                          BluetoothDeviceState.connected) {
+                        return const Icon(
+                          Icons.bluetooth_connected_outlined,
+                          color: Colors.redAccent,
+                        );
+                      } else {
+                        return const Icon(Icons.bluetooth_outlined);
+                      }
+                    },
+                  ),
+                  onPressed: () {
+                    Navigator.of(context)
+                        .push(MaterialPageRoute(builder: (context) {
+                      device.connect();
+                      return DeviceDetailPage(device: device);
+                    }));
                   },
                 ),
               ),

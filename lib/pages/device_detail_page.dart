@@ -18,60 +18,68 @@ class DeviceDetailPage extends StatelessWidget {
       ),
       body: ListView(
         children: [
-          const CircleAvatar(
-            radius: 60.0,
-            child: Icon(Icons.bluetooth_outlined),
-          ),
-          const Divider(),
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.symmetric(horizontal: 4.0),
             child: Card(
               child: Column(
                 children: [
-                  const Text("デバイス情報"),
                   ListTile(
-                    leading: const Text("デバイス名"),
-                    title: Text(device.name),
-                  ),
-                  ListTile(
-                    leading: const Text("ID"),
-                    title: Text(device.id.toString()),
-                  ),
-                  ListTile(
-                    leading: const Text("タイプ"),
-                    title: Text(device.type.toString()),
+                    leading: const Icon(Icons.bluetooth_connected),
+                    title: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("デバイス名 : ${device.name}"),
+                        Text("id : ${device.id.toString()}"),
+                      ],
+                    ),
+                    subtitle: Text("type : ${device.type.toString()}"),
                   ),
                 ],
               ),
             ),
           ),
-        ],
-      ),
-      bottomSheet: Container(
-        color: Colors.amberAccent,
-        height: 100,
-        child: Row(
-          children: [
-            ElevatedButton(
-              child: const Text("Connect"),
-              onPressed: () async {
-                await device.connect();
-                Navigator.of(context).pop();
-              },
-            ),
-            const Padding(padding: EdgeInsets.symmetric(vertical: 4.0)),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.redAccent,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4.0),
+            child: Card(
+              child: ListTile(
+                leading: StreamBuilder(
+                  stream: device.isDiscoveringServices,
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) {
+                      return const Icon(Icons.error);
+                    } else if (snapshot.data!) {
+                      return const CircularProgressIndicator();
+                    } else {
+                      return const Icon(Icons.bluetooth_connected_outlined);
+                    }
+                  },
+                ),
+                title: StreamBuilder(
+                  stream: device.services,
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) {
+                      return const Text("Loading...");
+                    } else if (snapshot.data!.isEmpty) {
+                      return const Text("Not found Services...");
+                    } else {
+                      return Text(snapshot.data.toString());
+                    }
+                  },
+                ),
+                trailing: ElevatedButton(
+                  child: const Icon(Icons.play_arrow),
+                  onPressed: () {
+                    device.discoverServices();
+                  },
+                ),
               ),
-              child: const Text("Cancel"),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 }
+
+// ToDo 接続したデバイスをProviderに登録する
+// ToDo ConsumerWidgetへ変更する
