@@ -4,11 +4,28 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:sample_bluetooth_connect/notifier/bluetooth_state_notifer.dart';
 import 'package:sample_bluetooth_connect/pages/device_detail_page.dart';
 
-class DeviceScanPage extends ConsumerWidget {
+class DeviceScanPage extends ConsumerStatefulWidget {
   const DeviceScanPage({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<DeviceScanPage> createState() => _DeviceScanPageState();
+}
+
+class _DeviceScanPageState extends ConsumerState<DeviceScanPage> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final bluetoothState = ref.watch(bluetoothStateProvider);
     final bluetoothScanning = ref.watch(bluetoothScanningProvider);
     final bluetoothScanResult = ref.watch(bluetoothScanResultProvider);
@@ -62,11 +79,10 @@ class DeviceScanPage extends ConsumerWidget {
                     },
                   ),
                   onPressed: () {
-                    Navigator.of(context)
-                        .push(MaterialPageRoute(builder: (context) {
-                      device.connect();
-                      return DeviceDetailPage(device: device);
-                    }));
+                    // device.connect();
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) =>
+                            DeviceDetailPage(device: device)));
                   },
                 ),
               ),
