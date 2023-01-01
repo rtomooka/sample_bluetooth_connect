@@ -16,6 +16,8 @@ class DeviceDetailPage extends StatefulWidget {
 }
 
 class _DeviceDetailPageState extends State<DeviceDetailPage> {
+  bool isReading = false;
+
   @override
   void initState() {
     // TODO: implement initState
@@ -76,31 +78,66 @@ class _DeviceDetailPageState extends State<DeviceDetailPage> {
           StreamBuilder(
             stream: widget.device.services,
             builder: (context, snapshot) {
-              if (!snapshot.hasData) return Container();
-              return ListView.builder(
-                shrinkWrap: true,
-                itemCount: snapshot.data!.length,
-                itemBuilder: (BuildContext context, int index) {
-                  String uuid = snapshot.data![index].uuid
-                      .toString()
-                      .substring(4, 8)
-                      .toUpperCase();
-                  return Card(
-                    child: ListTile(
-                      dense: true,
-                      leading: const Icon(Icons.electrical_services_outlined),
-                      title: Text(uuidMap[uuid] ?? "UnKnown Service"),
-                      onTap: () {
-                        snapshot.data![index].characteristics
-                            .forEach((element) async {
-                          final result = await element.read();
-                          Future.delayed(Duration(microseconds: 200));
-                          print(result);
-                        });
-                      },
-                    ),
-                  );
-                },
+              if (!snapshot.hasData) {
+                return const Center(
+                  child: Text("Not Found Services..."),
+                );
+              }
+              return SizedBox(
+                height: 450,
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: snapshot.data!.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    BluetoothService service = snapshot.data![index];
+                    String uuid =
+                        service.uuid.toString().substring(4, 8).toUpperCase();
+                    return Card(
+                      child: ExpansionTile(
+                        leading: const Icon(Icons.electrical_services_outlined),
+                        title: Text(uuidServiceMap[uuid] ?? "UnKnown Service"),
+                        children: [
+                          ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: service.characteristics.length,
+                            itemBuilder: (context, int indexChara) {
+                              BluetoothCharacteristic characteristic = snapshot
+                                  .data![index].characteristics[indexChara];
+                              String uuidChara = characteristic.uuid
+                                  .toString()
+                                  .substring(4, 8)
+                                  .toUpperCase();
+                              return Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 2.0),
+                                child: Card(
+                                  child: ExpansionTile(
+                                    leading: const Icon(Icons.message_outlined),
+                                    title: Text(
+                                        uuidCharacteristicMap[uuidChara] ??
+                                            "UnKnown Characteristics"),
+                                    children: [
+                                      Card(
+                                        child: ListTile(
+                                          title: Text(characteristic.lastValue
+                                              .toString()),
+                                          onTap: () async {
+                                            await characteristic.read();
+                                            setState(() {});
+                                          },
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
               );
             },
           ),
@@ -124,10 +161,8 @@ class _DeviceDetailPageState extends State<DeviceDetailPage> {
                 ),
                 ElevatedButton(
                   onPressed: () async {
-                    final services = await widget.device.discoverServices();
-                    setState(() {
-                      print(services);
-                    });
+                    await widget.device.discoverServices();
+                    setState(() {});
                   },
                   child: const Text("FIND SERVICES"),
                 ),
