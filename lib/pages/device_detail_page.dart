@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+import 'package:percent_indicator/percent_indicator.dart';
 import 'package:sample_bluetooth_connect/util/uuid_map.dart';
 
 class DeviceDetailPage extends StatefulWidget {
@@ -119,12 +120,13 @@ class _DeviceDetailPageState extends State<DeviceDetailPage> {
                                     children: [
                                       Card(
                                         child: ListTile(
-                                          title: Text(characteristic.lastValue
-                                              .toString()),
+                                          title: buildCharacteristicBody(
+                                              characteristic),
                                           onTap: () async {
                                             await characteristic.read();
                                             setState(() {});
                                           },
+                                          dense: true,
                                         ),
                                       ),
                                     ],
@@ -189,6 +191,34 @@ class _DeviceDetailPageState extends State<DeviceDetailPage> {
         },
       ),
     );
+  }
+
+  Widget buildCharacteristicBody(BluetoothCharacteristic characteristic) {
+    String uuidChara =
+        characteristic.uuid.toString().substring(4, 8).toUpperCase();
+
+    if (uuidChara == "2A19") {
+      if (characteristic.lastValue.isNotEmpty) {
+        return LinearPercentIndicator(
+          percent: characteristic.lastValue.first / 100,
+          lineHeight: 30,
+          animation: true,
+          animationDuration: 2000,
+          center: Text("${characteristic.lastValue.first}%"),
+          progressColor: Colors.greenAccent,
+        );
+      }
+    } else if (uuidChara == "2A00") {
+      if (characteristic.lastValue.isNotEmpty) {
+        String baseStr = "";
+        for (final charCode in characteristic.lastValue) {
+          baseStr += String.fromCharCode(charCode);
+        }
+        return Text(baseStr);
+      }
+    }
+
+    return Text(characteristic.lastValue.toString());
   }
 }
 
