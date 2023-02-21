@@ -60,71 +60,59 @@ class _DeviceScanPageState extends ConsumerState<DeviceScanPage> {
             final advertisementData =
                 bluetoothScanResult.value![index].advertisementData;
             return Card(
-              child: ExpansionTile(
-                expandedAlignment: Alignment.centerLeft,
-                expandedCrossAxisAlignment: CrossAxisAlignment.start,
-                childrenPadding: const EdgeInsets.only(left: 8.0),
+              child: ListTile(
                 title:
                     device.name.isEmpty ? const Text("N/A") : Text(device.name),
                 subtitle: Text(device.id.toString()),
-                children: [
-                  Text("Complete Local Name: ${advertisementData.localName}"),
-                  Text("Device Type: ${device.type.toString()}"),
-                  Text(
-                      "Tx Power Level: ${advertisementData.txPowerLevel ?? "N/A"}"),
-                  Text(
-                      "Manufacturer Data: ${advertisementData.manufacturerData.toString()}"),
-                  Text("Service UUIDs: ${advertisementData.serviceUuids}"),
-                  StreamBuilder(
-                    stream: device.state,
-                    builder: (context, snapshot) {
-                      if (!snapshot.hasData) {
-                        return const CircularProgressIndicator();
-                      } else if (snapshot.data ==
-                          BluetoothDeviceState.connected) {
-                        return ElevatedButton(
-                          onPressed: () {},
-                          child: const Text("DISCONNECT"),
-                        );
-                      } else {
-                        return ElevatedButton(
-                          onPressed: () async {
-                            try {
-                              await device.connect(
-                                  timeout: const Duration(seconds: 5));
-                            } catch (e) {
-                              showDialog(
-                                context: context,
-                                builder: (BuildContext buildContext) {
-                                  return AlertDialog(
-                                    title: Text(e.toString()),
-                                    actions: [
-                                      ElevatedButton(
-                                        onPressed: () {
-                                          Navigator.of(context).pop();
-                                        },
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.redAccent,
-                                        ),
-                                        child: const Text("RETURN"),
+                trailing: StreamBuilder(
+                  stream: device.state,
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) {
+                      return const CircularProgressIndicator();
+                    } else if (snapshot.data ==
+                        BluetoothDeviceState.connected) {
+                      return ElevatedButton(
+                        onPressed: () {},
+                        child: const Text("DISCONNECT"),
+                      );
+                    } else {
+                      return ElevatedButton(
+                        onPressed: () async {
+                          try {
+                            await device.connect(
+                                timeout: const Duration(seconds: 5));
+                          } catch (e) {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext buildContext) {
+                                return AlertDialog(
+                                  title: Text(e.toString()),
+                                  actions: [
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.redAccent,
                                       ),
-                                    ],
-                                  );
-                                },
-                              );
-                              return;
-                            }
-                            if (!mounted) return;
-                            Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) =>
-                                    DeviceDetailPage(device: device)));
-                          },
-                          child: const Text("CONNECT"),
-                        );
-                      }
-                    },
-                  ),
-                ],
+                                      child: const Text("RETURN"),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                            return;
+                          }
+                          if (!mounted) return;
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) =>
+                                  DeviceDetailPage(device: device)));
+                        },
+                        child: const Text("CONNECT"),
+                      );
+                    }
+                  },
+                ),
               ),
             );
           });
