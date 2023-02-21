@@ -51,40 +51,80 @@ class _DeviceScanPageState extends ConsumerState<DeviceScanPage> {
     if (!bluetoothScanResult.hasValue) {
       return const CircularProgressIndicator();
     } else if (bluetoothScanResult.value!.isEmpty) {
-      return const Center(child: Text("Not Found Devices..."));
+      return const Center(child: Text("Ready to Scan..."));
     } else {
       return ListView.builder(
           itemCount: bluetoothScanResult.value!.length,
           itemBuilder: (context, index) {
             final device = bluetoothScanResult.value![index].device;
+            final advertisementData =
+                bluetoothScanResult.value![index].advertisementData;
             return Card(
-              child: ListTile(
-                title: Text(device.name),
+              child: ExpansionTile(
+                expandedAlignment: Alignment.centerLeft,
+                expandedCrossAxisAlignment: CrossAxisAlignment.start,
+                childrenPadding: const EdgeInsets.only(left: 8.0),
+                title:
+                    device.name.isEmpty ? const Text("N/A") : Text(device.name),
                 subtitle: Text(device.id.toString()),
-                trailing: ElevatedButton(
-                  child: StreamBuilder(
+                children: [
+                  Text("Complete Local Name: ${advertisementData.localName}"),
+                  Text("Device Type: ${device.type.toString()}"),
+                  Text(
+                      "Tx Power Level: ${advertisementData.txPowerLevel ?? "N/A"}"),
+                  Text(
+                      "Manufacturer Data: ${advertisementData.manufacturerData.toString()}"),
+                  Text("Service UUIDs: ${advertisementData.serviceUuids}"),
+                  StreamBuilder(
                     stream: device.state,
                     builder: (context, snapshot) {
                       if (!snapshot.hasData) {
                         return const CircularProgressIndicator();
                       } else if (snapshot.data ==
                           BluetoothDeviceState.connected) {
-                        return const Icon(
-                          Icons.bluetooth_connected_outlined,
-                          color: Colors.redAccent,
+                        return ElevatedButton(
+                          onPressed: () {},
+                          child: const Text("DISCONNECT"),
                         );
                       } else {
-                        return const Icon(Icons.bluetooth_outlined);
+                        return ElevatedButton(
+                          onPressed: () async {
+                            try {
+                              await device.connect(
+                                  timeout: const Duration(seconds: 5));
+                            } catch (e) {
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext buildContext) {
+                                  return AlertDialog(
+                                    title: Text(e.toString()),
+                                    actions: [
+                                      ElevatedButton(
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.redAccent,
+                                        ),
+                                        child: const Text("RETURN"),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                              return;
+                            }
+                            if (!mounted) return;
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) =>
+                                    DeviceDetailPage(device: device)));
+                          },
+                          child: const Text("CONNECT"),
+                        );
                       }
                     },
                   ),
-                  onPressed: () {
-                    // device.connect();
-                    Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) =>
-                            DeviceDetailPage(device: device)));
-                  },
-                ),
+                ],
               ),
             );
           });
@@ -106,8 +146,10 @@ class _DeviceScanPageState extends ConsumerState<DeviceScanPage> {
         if (bluetoothScanning.value!) {
           await FlutterBluePlus.instance.stopScan();
         } else {
-          await FlutterBluePlus.instance
-              .startScan(timeout: const Duration(seconds: 5));
+          await FlutterBluePlus.instance.startScan(
+            timeout: const Duration(seconds: 5),
+            macAddresses: ["38:81:D7:1B:21:9C"],
+          );
         }
       },
       backgroundColor: bluetoothScanning.hasValue
@@ -117,8 +159,8 @@ class _DeviceScanPageState extends ConsumerState<DeviceScanPage> {
           : Colors.grey,
       child: bluetoothScanning.hasValue
           ? bluetoothScanning.value!
-              ? const Icon(Icons.pause)
-              : const Icon(Icons.play_arrow)
+              ? const Text("STOP")
+              : const Text("SCAN")
           : null,
     );
   }

@@ -96,7 +96,8 @@ class _DeviceDetailPageState extends State<DeviceDetailPage> {
                     return Card(
                       child: ExpansionTile(
                         leading: const Icon(Icons.electrical_services_outlined),
-                        title: Text(uuidServiceMap[uuid] ?? "UnKnown Service"),
+                        title: Text(
+                            knownUuidServiceMap[uuid] ?? "UnKnown Service"),
                         children: [
                           ListView.builder(
                             shrinkWrap: true,
@@ -115,7 +116,7 @@ class _DeviceDetailPageState extends State<DeviceDetailPage> {
                                   child: ExpansionTile(
                                     leading: const Icon(Icons.message_outlined),
                                     title: Text(
-                                        uuidCharacteristicMap[uuidChara] ??
+                                        knownUuidCharacteristicMap[uuidChara] ??
                                             "UnKnown Characteristics"),
                                     children: [
                                       Card(
@@ -221,6 +222,3 @@ class _DeviceDetailPageState extends State<DeviceDetailPage> {
     return Text(characteristic.lastValue.toString());
   }
 }
-
-// ToDo 接続したデバイスをProviderに登録する
-// ToDo ConsumerWidgetへ変更する

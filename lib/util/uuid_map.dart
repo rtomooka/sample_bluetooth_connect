@@ -1,4 +1,4 @@
-Map<String, String> uuidServiceMap = {
+Map<String, String> knownUuidServiceMap = {
   "1800": "Generic Access service",
   "1801": "Generic Attribute service",
   "1802": "Immediate Alert service",
@@ -33,7 +33,7 @@ Map<String, String> uuidServiceMap = {
   "1822": "Pulse Oximeter service",
 };
 
-Map<String, String> uuidCharacteristicMap = {
+Map<String, String> knownUuidCharacteristicMap = {
   "2A00": "Device Name",
   "2A01": "Appearance",
   "2A02": "Peripheral Privacy Flag",
