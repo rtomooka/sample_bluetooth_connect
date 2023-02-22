@@ -1,24 +1,50 @@
 <!-- omit in toc -->
 # sample_bluetooth_connect
 
-FlutterでBLE通信を行う方法を確認する
+BLE通信をFlutterで実験する
+↓実際の様子
 
-## 1. 使用するパッケージ
+[Flutter+Arduino+HM-10](https://youtu.be/63eFdtSA3NM)
 
-| パッケージ        | 説明                                                                 |
-| ----------------- | -------------------------------------------------------------------- |
-| flutter_blue_plus | 更新が途絶えている flutter_blue の後継として開発されているパッケージ |
-|                   |                                                                      |
+## 1. 構成
 
-### 1.1. flutter_blue_plus
+### 1.1. Bluetooth機器
 
-[flutter_blue_plus](https://pub.dev/packages/flutter_blue_plus)
+Bluetooth機器は Arduino Mega 2560 と HM-10で作成する
+ブレッドボード図を以下に示す
 
-## 概要
+![ブレッドボード図](image/ブレッドボード.png)
 
-![概要](summary.drawio.svg)
+Arduino Mega へ書き込むスケッチは[ここ](arduino/hm-10_test.ino)を参照
 
-## HM-10
+### 1.2. Flutterアプリ
+
+#### 1.2.1. 使用パッケージ
+
+- [flutter_blue_plus](https://pub.dev/packages/flutter_blue_plus)
+- [hooks_riverpod](https://pub.dev/packages/hooks_riverpod)
+- [flutter_hooks](https://pub.dev/packages/flutter_hooks)
+- [go_router](https://pub.dev/packages/go_router)
+
+#### 1.2.2. 操作方法
+
+操作方法を下図に示す
+
+![操作方法](image/app.drawio.svg)
+
+## 2. 参考
+
+### 2.1. HM-10の使用方法
+
+#### 2.1.1. ボード作成
+
+下図に従い、Arduino Mega と HM-10 を接続する
+
+![ブレッドボード図](image/ブレッドボード_ATコマンド.png)
+
+#### 2.1.2. スケッチの書き込み
+
+Arduino IDEを起動し、Arduino Mega に以下のスケッチを書き込む
 
 ```code
 #include <SoftwareSerial.h>
@@ -43,47 +69,50 @@ FlutterでBLE通信を行う方法を確認する
  }
 ```
 
+> **Tips**
+> スケッチ例は[ここ](arduino/hm-10_test.ino)を参照
+
+#### 2.1.3. ATコマンドの実行
+
+Arduino IDE のシリアルモニタを開き、以下のコマンドを順に送信する
+
 ```command
 AT
-AT+HELP
 AT+LADDR
 AT+UUID
 AT+CHAR
 ```
 
+コマンドの結果として、以下のようにメッセージが表示されることを確認する
+
 ```code
 OK
-********************************************************************
-* Command             Description			           *
-* ---------------------------------------------------------------- *
-* AT                  Check if the command terminal work normally  *
-* AT+RESET            Software reboot				   *
-* AT+VERSION          Get firmware, bluetooth, HCI and LMP version *
-* AT+HELP             List all the commands		           *
-* AT+NAME             Get/Set local device name                    *
-* AT+PIN              Get/Set pin code for pairing                 *
-* AT+BAUD             Get/Set baud rate		                   *
-* AT+LADDR            Get local bluetooth address		   *
-* AT+ADDR             Get local bluetooth address		   *
-* AT+DEFAULT          Restore factory default			   *
-* AT+RENEW            Restore factory default			   *
-* AT+STATE            Get current state				   *
-* AT+PWRM             Get/Set power on mode(low power) 		   *
-* AT+POWE             Get/Set RF transmit power 		   *
-* AT+SLEEP            Sleep mode 		                   *
-* AT+ROLE             Get/Set current role.	                   *
-* AT+PARI             Get/Set UART parity bit.                     *
-* AT+STOP             Get/Set UART stop bit.                       *
-* AT+INQ              Search slave model                           *
-* AT+SHOW             Show the searched slave model.               *
-* AT+CONN             Connect the index slave model.               *
-* AT+IMME             System wait for command when power on.	   *
-* AT+START            System start working.			   *
-* AT+UUID             Get/Set system SERVER_UUID .            	   *
-* AT+CHAR             Get/Set system CHAR_UUID .            	   *
-* -----------------------------------------------------------------*
-* Note: (M) = The command support master mode only. 	           *
 +LADD=3881D71B219C
 +UUID=FFE0
 +CHAR=FFE1
 ```
+
+それぞれのコマンドとメッセージの意味を下表に示す
+
+| コマンド | メッセージ         | 意味                          |
+| -------- | ------------------ | ----------------------------- |
+| AT       | OK                 | ATコマンド受付状態            |
+| AT+LADDR | +LADD=3881D71B219C | MacAddress                    |
+| AT+UUID  | +UUID=FFE0         | BLEサービスのID               |
+| AT+CHAR  | +CHAR=FFE1         | BLEキャラクタリスティクスのID |
+
+> **Tips**
+> コマンドの詳細は[HM-10 DataSheet](https://people.ece.cornell.edu/land/courses/ece4760/PIC32/uart/HM10/DSD%20TECH%20HM-10%20datasheet.pdf)を参照
+
+#### 2.1.4. BLE通信の実行
+
+ATコマンドの結果を元に以下の観点でBLE通信を行う
+※詳細はFlutterアプリを参照
+
+- MacAddressによって接続する HM-10 が判別できる
+- BLEサービス/キャラクタリスティクスのIDによって利用するサービス/キャラクタリスティクスが判別できる
+
+### 2.2. 参考リンク
+
+- [Bluetooth Low Energy Tutorial with HM-10 BLE 4.0 & Arduino](https://how2electronics.com/bluetooth-low-energy-tutorial-with-hm-10-ble-4-0-arduino/)
+- [HM-10 BLE 4.0 & Arduino を使用した Bluetooth Low Energy チュートリアル](https://www.youtube.com/watch?v=MV7EUEoc9dI)
