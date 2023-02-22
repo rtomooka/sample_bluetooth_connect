@@ -3,6 +3,7 @@ import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:sample_bluetooth_connect/notifier/bluetooth_state_notifer.dart';
 import 'package:sample_bluetooth_connect/pages/device_detail_page.dart';
+import 'package:sample_bluetooth_connect/util/mac_address.dart';
 
 class DeviceScanPage extends ConsumerStatefulWidget {
   const DeviceScanPage({Key? key}) : super(key: key);
@@ -14,13 +15,11 @@ class DeviceScanPage extends ConsumerStatefulWidget {
 class _DeviceScanPageState extends ConsumerState<DeviceScanPage> {
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
   }
 
   @override
   void dispose() {
-    // TODO: implement dispose
     super.dispose();
   }
 
@@ -31,7 +30,7 @@ class _DeviceScanPageState extends ConsumerState<DeviceScanPage> {
     final bluetoothScanResult = ref.watch(bluetoothScanResultProvider);
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Bluetooth Demo"),
+        title: const Text("Bluetooth Low Energy"),
         actions: [
           bluetoothState.value == BluetoothState.on
               ? const Icon(Icons.bluetooth_outlined)
@@ -57,8 +56,6 @@ class _DeviceScanPageState extends ConsumerState<DeviceScanPage> {
           itemCount: bluetoothScanResult.value!.length,
           itemBuilder: (context, index) {
             final device = bluetoothScanResult.value![index].device;
-            final advertisementData =
-                bluetoothScanResult.value![index].advertisementData;
             return Card(
               child: ListTile(
                 title:
@@ -136,7 +133,7 @@ class _DeviceScanPageState extends ConsumerState<DeviceScanPage> {
         } else {
           await FlutterBluePlus.instance.startScan(
             timeout: const Duration(seconds: 5),
-            macAddresses: ["38:81:D7:1B:21:9C"],
+            macAddresses: bluetoothMacAddress,
           );
         }
       },
