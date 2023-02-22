@@ -192,14 +192,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.8.2"
-  percent_indicator:
-    dependency: "direct main"
-    description:
-      name: percent_indicator
-      sha256: cec41f67181fbd5322aa68b355621d1a4eea827426b8eeb613f6cbe195ff7b4a
-      url: "https://pub.dev"
-    source: hosted
-    version: "4.2.2"
   protobuf:
     dependency: transitive
     description:
